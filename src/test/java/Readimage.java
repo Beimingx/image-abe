@@ -1,8 +1,6 @@
 import com.mathworks.toolbox.javabuilder.MWException;
 import imageprocessor.ImageProcessor;
 
-
-import org.apache.commons.io.IOUtils;
 import sg.edu.ntu.sce.sands.crypto.dcpabe.*;
 import sg.edu.ntu.sce.sands.crypto.dcpabe.ac.AccessStructure;
 import sg.edu.ntu.sce.sands.crypto.utility.Utility;
@@ -16,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -43,7 +42,7 @@ public class Readimage {
     Button open2=new Button("打开图片");
     TextField ted=new TextField("",60);
     TextField ted2=new TextField("",60);
-    TextArea tree=new TextArea("Au=a,b,c,d\nAccess structure:and a or d and b c",13,40);
+    TextArea tree=new TextArea("Au=a,b,c,d\nSender:arth1\nAccess structure:and a or d and b c",13,40);
     BufferedImage image;
 
 
@@ -62,7 +61,7 @@ public class Readimage {
     JLabel jLabel1= new JLabel("原始图像",SwingConstants.CENTER);
     JLabel jLabel2= new JLabel("携带秘密信息的载密图像",SwingConstants.CENTER);
     JLabel jLabel3= new JLabel("                    加密图像                    ",SwingConstants.CENTER);
-    JLabel jLabel4= new JLabel("arth2：具有属性a,d",SwingConstants.CENTER);
+    JLabel jLabel4= new JLabel("    arth2：具有属性a,d",SwingConstants.CENTER);
     JLabel jLabel5= new JLabel("arth3:具有属性b,c",SwingConstants.CENTER);
 
 
@@ -184,8 +183,16 @@ public class Readimage {
         jLabel3.setFont(new Font("仿宋",Font.BOLD,20));
         jLabel4.setFont(new Font("仿宋",Font.BOLD,20));
         jLabel5.setFont(new Font("仿宋",Font.BOLD,20));
+        jLabel4.setBackground(Color.WHITE);
+        jLabel5.setBackground(Color.WHITE);
         jLabel3.setVisible(false);
+        jLabel4.setVisible(false);
+        jLabel5.setVisible(false);
+        decrypt4.setVisible(false);
+        decrypt5.setVisible(false);
         tree.setVisible(false);
+        drawArea4.setVisible(false);
+        drawArea5.setVisible(false);
         //写入监听
         open2.addActionListener(e -> {
             FileDialog fileDialog = new FileDialog(frame2, "打开图片", FileDialog.LOAD);
@@ -198,8 +205,16 @@ public class Readimage {
             try {//read image
                 image = ImageIO.read(new File(dir,fileName));
                 drawArea3.repaint();
+                drawArea4.setVisible(true);
+                drawArea5.setVisible(true);
+                drawArea4.repaint();
+                drawArea5.repaint();
                 jLabel3.setVisible(true);
                 tree.setVisible(true);
+                jLabel4.setVisible(true);
+                jLabel5.setVisible(true);
+                decrypt4.setVisible(true);
+                decrypt5.setVisible(true);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -228,7 +243,7 @@ public class Readimage {
             try {
                 decryptabe("b","c",readimage);
                 image = ImageIO.read(new File(dir,fileName));
-                drawArea4.repaint();
+                drawArea5.repaint();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -296,9 +311,11 @@ public class Readimage {
 
         JSplitPane splitPane2= new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,bl,br);
 
+        splitPane2.setBackground(Color.WHITE);
+
         frame2.add(p,BorderLayout.NORTH);
         frame2.add(splitPane2,BorderLayout.CENTER);
-        frame2.setBounds(100, 100, 1200, 900);
+        frame2.setBounds(100, 100, 1200, 930);
 
         splitPane2.setDividerSize(1);
         splitPane2.setDividerLocation(600);
@@ -454,10 +471,8 @@ public class Readimage {
                 e.printStackTrace();
             }//filebytes==encryptedpayload
 
-            System.out.println("ok");
             byte[] decryptedPayload;//01bit
             ByteArrayInputStream bais = new ByteArrayInputStream(fileBytes);
-            System.out.println("ok1");
             decryptedPayload = Utility.encryptAndDecrypt(dMessage.getM(), false, bais);//wrong
 
 //            byte[] k2=decryptedPayload;
@@ -471,7 +486,6 @@ public class Readimage {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("ok4");
             recivetest(path);
             System.out.println("decrypt key success!");
         }
