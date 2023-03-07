@@ -1,4 +1,4 @@
-A image based on CP-ABE
+An image access control system based on CP-ABE
 ======
 
 ## How To contribute
