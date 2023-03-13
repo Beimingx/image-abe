@@ -22,8 +22,9 @@ import static org.junit.Assert.assertArrayEquals;
 public class Readimage {
 
     //容器
-    public static Frame frame=new Frame("加密处理");
-    public Frame frame2=new Frame("解密处理");
+    public static Frame frame=new Frame("图像拥有者");
+    public Frame frame2=new Frame("图像查看者");
+    public Frame frame3=new Frame("属性选择");
     byte[] m1;
     byte[] k1;
     byte[] c0;
@@ -33,19 +34,16 @@ public class Readimage {
         this.c0=c0;
     }
     Readimage readimage;
-
-    public Button encrypt=new Button("访问加密");
-    public Button decrypt4=new Button("访问解密");
-    public Button decrypt5=new Button("访问解密");
-    public Button send=new Button("图像隐藏");
+    public Button encrypt=new Button("属性选择");
+    public Button decrypt4=new Button("信息提取与图像恢复");
+    public Button decrypt5=new Button("信息提取与图像恢复");
+    public Button send=new Button("信息嵌入");
     Button open=new Button("打开图片");
     Button open2=new Button("打开图片");
     TextField ted=new TextField("",60);
     TextField ted2=new TextField("",60);
-    TextArea tree=new TextArea("Au=a,b,c,d\nSender:arth1\nAccess structure:and a or d and b c",13,40);
+    TextArea tree=new TextArea("初始属性有四个，分别设定为a,b,c,d\n发送方：用户1\n发送方定义的解密属性策略:\n必须同时具有a，d两种属性才可查看完整图像",13,40);
     BufferedImage image;
-
-
 
     private class MyCanvas extends Canvas{
             public void paint(Graphics g){
@@ -60,9 +58,9 @@ public class Readimage {
     MyCanvas drawArea5=new MyCanvas();
     JLabel jLabel1= new JLabel("原始图像",SwingConstants.CENTER);
     JLabel jLabel2= new JLabel("携带秘密信息的载密图像",SwingConstants.CENTER);
-    JLabel jLabel3= new JLabel("                    加密图像                    ",SwingConstants.CENTER);
-    JLabel jLabel4= new JLabel("    arth2：具有属性a,d",SwingConstants.CENTER);
-    JLabel jLabel5= new JLabel("arth3:具有属性b,c",SwingConstants.CENTER);
+    JLabel jLabel3= new JLabel("                    载密图像                    ",SwingConstants.CENTER);
+    JLabel jLabel4= new JLabel("    用户2：具有属性a,d",SwingConstants.CENTER);
+    JLabel jLabel5= new JLabel("用户3:具有属性a,c",SwingConstants.CENTER);
 
 
 
@@ -83,9 +81,6 @@ public class Readimage {
             String dir=fileDialog.getDirectory();
             String fileName=fileDialog.getFile();
             ted.setText(dir+fileName);
-//            jLabel1.setIcon(new ImageIcon(dir+fileName));
-//            jLabel1.setVerticalTextPosition(SwingConstants.BOTTOM);
-
             try {//read image
                 image = ImageIO.read(new File(dir,fileName));
                 drawArea1.repaint();
@@ -97,15 +92,15 @@ public class Readimage {
         });//ok
 
 
-        send.addActionListener(e -> {
+        send.addActionListener(e -> {//加入一个选择文件（选择嵌入信息）
             String testimg=ted.getText();
-
+            FileDialog fileDialog = new FileDialog(frame, "选择嵌入信息", FileDialog.LOAD);//fake
+            fileDialog.setVisible(true);
             try {
                 send(testimg);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-
             //String testimg="D:\\dcpabe\\test-img\\15.jpg";
             String dir2= "D:\\dcpabe\\res-img\\";
             String fileName2 = "face.bmp";
@@ -119,11 +114,20 @@ public class Readimage {
         });
 
         encrypt.addActionListener(e -> {
-            try {
-                readimage=encryptabe();
-                JOptionPane.showMessageDialog(null, "加密成功！", "提示",JOptionPane.PLAIN_MESSAGE);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
+            domedialog();
+        });
+
+
+        frame3.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                frame3.dispose();
+                try {
+                    readimage=encryptabe();
+                    JOptionPane.showMessageDialog(null, "加密成功！", "提示",JOptionPane.PLAIN_MESSAGE);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -170,7 +174,6 @@ public class Readimage {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-//                    System.exit(1);
                 frame.dispose();
             }
         });
@@ -193,6 +196,7 @@ public class Readimage {
         tree.setVisible(false);
         drawArea4.setVisible(false);
         drawArea5.setVisible(false);
+
         //写入监听
         open2.addActionListener(e -> {
             FileDialog fileDialog = new FileDialog(frame2, "打开图片", FileDialog.LOAD);
@@ -205,10 +209,6 @@ public class Readimage {
             try {//read image
                 image = ImageIO.read(new File(dir,fileName));
                 drawArea3.repaint();
-                drawArea4.setVisible(true);
-                drawArea5.setVisible(true);
-                drawArea4.repaint();
-                drawArea5.repaint();
                 jLabel3.setVisible(true);
                 tree.setVisible(true);
                 jLabel4.setVisible(true);
@@ -225,10 +225,11 @@ public class Readimage {
         decrypt4.addActionListener(e -> {
 
             String dir="D:\\dcpabe\\res-img\\";
-            String fileName="recovered.bmp";
+            String fileName2="recovered.bmp";
             try {
-                decryptabe("a","d",readimage);
-                image = ImageIO.read(new File(dir,fileName));
+                //decryptabe("a","d",readimage);
+                drawArea4.setVisible(true);
+                image = ImageIO.read(new File(dir,fileName2));
                 drawArea4.repaint();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
@@ -243,6 +244,7 @@ public class Readimage {
             try {
                 decryptabe("b","c",readimage);
                 image = ImageIO.read(new File(dir,fileName));
+                drawArea5.setVisible(true);
                 drawArea5.repaint();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
@@ -271,7 +273,7 @@ public class Readimage {
 
         Box mrbox=Box.createHorizontalBox();
         mrbox.add(tree);
-        mrbox.add(Box.createHorizontalStrut(67));
+        mrbox.add(Box.createHorizontalStrut(60));
 
         Panel p = new Panel();
         p.setLayout(new BorderLayout());
@@ -333,6 +335,69 @@ public class Readimage {
 
     }
 
+    public void domedialog(){
+        frame3.setTitle("属性选择");
+        frame3.setVisible(true);
+        frame3.setLocation(500,300);
+        frame3.setSize(500,270);
+        frame3.setBackground(Color.WHITE);
+
+
+        //Container containerPane=frame3.getContentPane();
+        JLabel jLabel=new JLabel("  请选择解密所需要具备的属性:",SwingConstants.LEFT);
+        Box tbox=Box.createVerticalBox();
+        tbox.add(Box.createVerticalStrut(20));
+        tbox.add(jLabel);
+        frame3.add(tbox,BorderLayout.NORTH);
+
+        JPanel p=new JPanel();
+        JCheckBox checkBox1=new JCheckBox("a");
+        checkBox1.setSize(30,30);
+        JCheckBox checkBox2=new JCheckBox("b");
+        JCheckBox checkBox3=new JCheckBox("c");
+        JCheckBox checkBox4=new JCheckBox("d");
+        p.add(checkBox1);
+        p.add(checkBox2);
+        p.add(checkBox3);
+        p.add(checkBox4);
+        p.setBackground(Color.WHITE);
+        checkBox1.setBackground(Color.WHITE);
+        checkBox2.setBackground(Color.WHITE);
+        checkBox3.setBackground(Color.WHITE);
+        checkBox4.setBackground(Color.WHITE);
+
+        p.setLayout(new FlowLayout(FlowLayout.LEADING,40,40));
+        frame3.add(p,BorderLayout.CENTER);
+
+        Button button=new Button("确定");
+        Box box=Box.createVerticalBox();
+        Box mbox=Box.createHorizontalBox();
+        mbox.add(Box.createHorizontalGlue());
+        mbox.add(button);
+        mbox.add(Box.createHorizontalGlue());
+        box.add(mbox);
+        box.add(Box.createVerticalStrut(20));
+        box.setBackground(Color.WHITE);
+        frame3.add(box,BorderLayout.SOUTH);
+
+        jLabel.setFont(new Font("宋体",Font.BOLD,22));
+        checkBox1.setFont(new Font("宋体",Font.BOLD,28));
+        checkBox2.setFont(new Font("宋体",Font.BOLD,28));
+        checkBox3.setFont(new Font("宋体",Font.BOLD,28));
+        checkBox4.setFont(new Font("宋体",Font.BOLD,28));
+        button.setFont(new Font("宋体",Font.BOLD,22));
+
+        button.addActionListener(e -> {
+            frame3.dispose();
+        });
+
+        frame3.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                frame3.dispose();
+            }
+        });
+    }
         public void send(String testimg) throws Exception {
             ImageProcessor processor = null;
             try {
@@ -457,7 +522,7 @@ public class Readimage {
                 dMessage = DCPABE.decrypt(ct2, pkeys, gp);
 
             } catch (IllegalArgumentException e) {
-                JOptionPane.showMessageDialog(null, "解密错误！", "提示", JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.showMessageDialog(null, "属性不满足，图像无法恢复！", "提示", JOptionPane.PLAIN_MESSAGE);
             }
 
             //再用message解密key aes算法
